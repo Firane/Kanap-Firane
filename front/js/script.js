@@ -27,7 +27,8 @@ function productsDisplay() {
             </article>
         </a>
         `
-    )
-}
+        )
+        .join('')
+    }
 
 window.addEventListener('load', fetchProducts);
