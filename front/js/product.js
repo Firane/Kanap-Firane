@@ -2,36 +2,19 @@ const urlParams = new URLSearchParams(window.location.search);
 const productID = urlParams.get('id');
 const headTitle = document.querySelector('title');
 const imgInsertion = document.querySelector('.item__img');
-
-
-let customerChoices = [];
-let customerPicks = {};
-let customerQuantityPicked;
-let cartProductId = {
-    id : productID
-}
 const colorsPicker = document.getElementById('colors');
+
+
 let productData = [];
-
 let panier = [];
-let finalPanier = [];
-class commande {
-    constructor(color, quantity, id) {
-      this.color = color;
-      this.quantity = quantity;
-      this.id = id;
-    }
-  }
 
-
+// Fonction permettant le tri dans le tableau déclarer dans la variable "panier"
   function match () {
     panier.find(element => element.color === customerPicks.color)
 };
 
 
 // Fonction qui recupere la data de l'api
-
-
 async function fetchProducts() {
     await fetch('http://localhost:3000/api/products/' + productID)
     .then((res) => res.json())
@@ -40,9 +23,7 @@ async function fetchProducts() {
 }
 
 
-
 // Fonction qui implementes les infos que l'on souhaite intégrer dynamiquement au code html
-
 function productDisplay () {
 
     headTitle.textContent = productData.name;
@@ -62,64 +43,64 @@ function productDisplay () {
 }
 
 
-
+// Fonction qui permet la création d'un objet a ajouter au panier, et de l'ajout de celui ci a un tableau "panier"
 function addpanier (color, quantity, id) {
     if(typeof color === 'string' && !isNaN(quantity) && typeof id === 'string') {
-        let added = new commande(color, quantity, id);
+        let added = {color: color, quantity: quantity, id: id}
         panier.push(added)
     }
 }
 
+// Duo de fonction qui pour la première ajoute le panier au local Storage, et qui pour la deuxieme ajoute le local storage au panier
+function storingCart () {
+    window.localStorage.setItem('panier', JSON.stringify(panier));
+}
+function getStoredCard () {
+    const storage = JSON.parse(localStorage.getItem('panier'))
+    if(storage !== null){
+        panier = storage;
+    }
+}
 
 window.addEventListener('load', fetchProducts());
 
-colorsPicker.addEventListener('click', (e) => {
-    if (e.target.value != "") {
-    let colorChoice = e.target.value;
-    customerPicks.color = colorChoice;
-    customerPicks.id = productID;
-    console.log(customerPicks);
-    }
-    if (e.target.value === '') {
-        customerPicks.color = null;
-        customerPicks.quantity = null;
-        customerPicks.id = null;
-        console.log(customerPicks);
-    }
+
+window.addEventListener('load', () => {
+    getStoredCard();
+})
+
+colorsPicker.addEventListener('change', (e) => {
+    addToCart.textContent = "Ajouter au panier";
+    addToCart.style.border = 'none';
 })
 
 
-quantity.addEventListener('click', (e) => {
-    if (e.target.value != 0) {
-        let quantityChoice = e.target.value;
-        customerPicks.quantity = Number(quantityChoice);
-        customerPicks.id = productID;
-        console.log(customerPicks);
-        }
-    if (e.target.value === 0) {
-        customerPicks.color = null;
-        customerPicks.quantity = null;
-        customerPicks.id = null;
-        console.log(customerPicks);
-    }
+quantity.addEventListener('change', (e) => {
+    addToCart.textContent = "Ajouter au panier";
+    addToCart.style.border = 'none'
 })
 
 
-// le probleme cest le stacking dans le local storage.. creer plusieurs objets via une fonction ? quon push qlqchose de diff a chaque fois au lieu de la meme variable avec valeur diff
+// Création d'une ecoute d'évenement sur le bouton ajouter au panier : Trie directement l'ajout en court et le panier actuel, renvoi un message d'erreur (dans la console) si certains champs sont vides
+// Ajoute finalement la selection de l'utilisateur au panier, en local storage et dans la variable.
 
 addToCart.addEventListener('click', e => {
-    if (panier.find(element => element.color === customerPicks.color) && panier.find(element => element.id === customerPicks.id)){
-        // element.quantity += customerPicks.quantity
-        panier.find(element => element.color === customerPicks.color).quantity += customerPicks.quantity;
+    const item = panier.find(element => element.color === colors.value && element.id === productID)
+    if(quantity.value === '0' || colors.value === '' || productID === undefined) {
+        addToCart.textContent = "Erreur, vous n'avez pas rempli toutes les infos nécessaires.";
+        addToCart.style.border = '3px solid red'
+        return;
     }
-    else if (customerPicks.quantity === null || customerPicks.color === null || customerPicks.id === null) {
-        console.log("Erreur, vous n'avez pas remplis toutes les infos nécessaires.");        
+    else if(item){
+        item.quantity += Number(quantity.value);
     }
     else {
-        addpanier(customerPicks.color, customerPicks.quantity, customerPicks.id)
+        addpanier(colorsPicker.value, Number(quantity.value), productID)
     }
-    // addpanier(customerPicks.color, customerPicks.quantity, customerPicks.id)
     console.log(panier);
-    // localStorage.setItem('panier', JSON.stringify(customerChoices));
+    storingCart();
     }
 )
+
+
+
