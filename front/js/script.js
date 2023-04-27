@@ -1,23 +1,20 @@
 let productsData = [];
-let productsContainer = document.getElementById('items');
-
+let productsContainer = document.getElementById("items");
 
 // fonction qui récupère toute la data depuis l'API
 async function fetchProducts() {
-    await fetch('http://localhost:3000/api/products')
+  await fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
     .then((data) => (productsData = data));
 
-    productsDisplay();
+  productsDisplay();
 }
 
-
-
-// Fonction qui génère l'article html pour chaque produits 
+// Fonction qui génère l'article html pour chaque produits
 function productsDisplay() {
-    productsContainer.innerHTML = productsData
+  productsContainer.innerHTML = productsData
     .map(
-        (product) =>
+      (product) =>
         `
         <a href="./product.html?id=${product._id}">
             <article>
@@ -27,8 +24,8 @@ function productsDisplay() {
             </article>
         </a>
         `
-        )
-        .join('')
-    }
+    )
+    .join("");
+}
 
-window.addEventListener('load', fetchProducts);
+window.addEventListener("load", fetchProducts);
