@@ -21,7 +21,9 @@ function getStoredCart() {
 }
 // Fonction qui calcule et affiche la totalité du nombre d'article ainsi que la somme total des produits figurants dans le panier
 function total() {
-  for (i = 0; i < productsData.length; i++) {
+  panierPrice = 0;
+  panierTotalQuantity = 0;
+  for (i = 0; i < panier.length; i++) {
     panierPrice += productsData[i].price * panier[i].quantity;
     panierTotalQuantity += panier[i].quantity;
   }
@@ -61,8 +63,16 @@ function getDeleteItemButtons() {
 function addListenersMultipleElementsQuantity() {
   getitemQuantityButtons().forEach((element) => {
     element.addEventListener("change", (e) => {
-      console.log(element.closest("article"));
-
+      const item = element.closest("article");
+      const para = element.previousElementSibling;
+      const itemInfo = [item.dataset.color, item.dataset.id];
+      const found = panier.find(
+        (element) => element.color === itemInfo[0] && element.id === itemInfo[1]
+      );
+      found.quantity = Number(e.target.value);
+      window.localStorage.setItem("panier", JSON.stringify(panier));
+      para.textContent = `Qté : ${found.quantity}`;
+      total();
       //La prochaine étape c'est recupération de l'id et color via le dataset, et faire correspondre nos actions avec la variable panier ainsi que le local storage.
     });
   });
@@ -73,7 +83,18 @@ function addListenersMultipleElementsQuantity() {
 function addListenersMultipleElementsDelete() {
   getDeleteItemButtons().forEach((element) => {
     element.addEventListener("click", (e) => {
-      element.closest("article").remove();
+      const item = element.closest("article");
+      const itemInfo = [item.dataset.color, item.dataset.id];
+      const found = panier.find(
+        (element) => element.color === itemInfo[0] && element.id === itemInfo[1]
+      );
+      panier = panier.filter((item) => item !== found);
+      window.localStorage.setItem("panier", JSON.stringify(panier));
+      total();
+      item.remove();
+      if (panier.length === 0) {
+        cartDisplay();
+      }
     });
   });
 }
@@ -82,10 +103,15 @@ function addListenersMultipleElementsDelete() {
 async function cartDisplay() {
   await getCartDatas();
   total();
-  //  CREATEELEMENT ++
-  cartItems.innerHTML = panier
-    .map(
-      (cartItem, index) => `
+  if (panier.length === 0) {
+    cartItems.innerHTML = `
+      <p style="text-align: center">Vous n'avez aucun article dans votre panier.<br>
+      N'hésitez pas à consulter <a href="./index.html">nos articles</a> et à faire votre choix.</p>
+    `;
+  } else {
+    cartItems.innerHTML = panier
+      .map(
+        (cartItem, index) => `
       <article class="cart__item" data-id="${cartItem.id}" data-color="${cartItem.color}">
               <div class="cart__item__img">
                 <img src="${productsData[index].imageUrl}" alt="Photographie d'un canapé">
@@ -99,7 +125,7 @@ async function cartDisplay() {
                 <div class="cart__item__content__settings">
                   <div class="cart__item__content__settings__quantity">
                     <p>Qté : ${cartItem.quantity}</p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
+                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cartItem.quantity}">
                   </div>
                   <div class="cart__item__content__settings__delete">
                     <p class="deleteItem">Supprimer</p>
@@ -108,11 +134,12 @@ async function cartDisplay() {
               </div>
             </article>
       `
-    )
-    .join("");
+      )
+      .join("");
 
-  addListenersMultipleElementsQuantity();
-  addListenersMultipleElementsDelete();
+    addListenersMultipleElementsQuantity();
+    addListenersMultipleElementsDelete();
+  }
 }
 
 window.addEventListener("load", () => {
