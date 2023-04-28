@@ -1,8 +1,3 @@
-// Il va falloir recup l'id du produit et la couleur pour les modifications
-// via l'onglet panier. Probablement avec un event listener qui prendrai un truc
-// comme l'utilisation de element.closest() qui permettrait de mettre le doigt sur
-// l'article cart__item qui a dans sa balise les infos couleur/id via data-id
-// et data-color
 
 let panier = [];
 let productsData = [];
