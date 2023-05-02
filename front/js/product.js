@@ -76,6 +76,7 @@ quantity.addEventListener("change", (e) => {
 // Création d'une ecoute d'évenement sur le bouton ajouter au panier : Trie directement l'ajout en court et le panier actuel, renvoi un message d'erreur (dans la console) si certains champs sont vides
 // Ajoute finalement la selection de l'utilisateur au panier, en local storage et dans la variable.
 
+
 addToCart.addEventListener("click", (e) => {
   const item = panier.find(
     (element) => element.color === colors.value && element.id === productID
