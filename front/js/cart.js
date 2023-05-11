@@ -144,6 +144,7 @@ window.addEventListener("load", () => {
 // FORM ------------------------------------------------------------------------------------
 const form = document.querySelector(".cart__order__form");
 
+// Retourne un tableau contenant chaque id des produits du client
 function getids() {
   const idCart = [];
   for (let index = 0; index < panier.length; index++) {
@@ -152,50 +153,80 @@ function getids() {
   return idCart;
 }
 
-const getContact = (firstname, lastname, address, city, email) => {
-  contact = {
-    firstName: firstname,
-    lastName: lastname,
-    address: address,
-    city: city,
-    email: email,
-  };
-};
-
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   if (
     email.value.match(
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+    ) &&
+    firstName.value.match(
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u
+    ) &&
+    lastName.value.match(
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u
     )
   ) {
     const orderData = {
-      contact : {
-        firstName : firstName.value,
-        lastName : lastName.value,
-        address :address.value,
-        city : city.value,
-        email : email.value
+      contact: {
+        firstName: firstName.value,
+        lastName: lastName.value,
+        address: address.value,
+        city: city.value,
+        email: email.value,
       },
-      products: getids()
-    }
-      fetch("http://localhost:3000/api/products/order", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body : JSON.stringify(orderData)
-      })
-        .then((res) => res.json())
-        .then((data) => window.location.replace('http://127.0.0.1:5500/front/html/confirmation.html?orderid=' + data.orderId));
-  } else {
+      products: getids(),
+    };
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    })
+      .then((res) => res.json())
+      .then((data) =>
+        window.location.replace(
+          "http://127.0.0.1:5500/front/html/confirmation.html?orderid=" +
+            data.orderId
+        )
+      );
+  } else if (
+    !email.value.match(
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+    )
+  ) {
     email.style.border = "red 2px solid";
-    email.previousElementSibling.textContent =
-      "Email incorrect ! Veuillez inscrire une adresse mail valide :";
+    emailErrorMsg.textContent =
+      "Email incorrect ! Veuillez inscrire une adresse email valide :";
+  } else if (
+    !firstName.value.match(
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u
+    )
+  ) {
+    firstName.style.border = "red 2px solid";
+    firstNameErrorMsg.textContent = 'Merci de renseigner un prénom valide'
+  } else if (
+    !lastName.value.match(
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u
+    )
+  ) {
+    lastName.style.border = "red 2px solid";
+    lastNameErrorMsg.textContent = 'Merci de renseigner un nom valide'
   }
+  return false;
 });
 
 email.addEventListener("input", (e) => {
   email.style.border = "none";
   email.previousElementSibling.textContent = "Email:";
+});
+
+firstName.addEventListener("input", (e) => {
+  firstName.style.border = "none";
+  firstNameErrorMsg.textContent = '';
+});
+
+lastName.addEventListener("input", (e) => {
+  lastName.style.border = "none";
+  lastNameErrorMsg.textContent = '';
 });
